@@ -34,7 +34,7 @@ type Processor struct {
 	screenshotResult *chrome.ScreenshotResult
 
 	// persistence id
-	urlid uint
+	UrlId uint
 }
 
 // Gowitness processes a URL by:
@@ -44,7 +44,6 @@ type Processor struct {
 //   - calculating a perception hash
 //   - writing a screenshot to disk
 func (p *Processor) Gowitness() (err error) {
-
 	p.init()
 
 	if err = p.preflight(); err != nil {
@@ -139,13 +138,12 @@ func (p *Processor) preflight() (err error) {
 
 // persistRequest dispatches the StorePreflight function
 func (p *Processor) persistRequest() (err error) {
-
 	if p.Db == nil {
 		return
 	}
 
 	p.Logger.Debug().Str("url", p.URL.String()).Msg("storing request data")
-	if p.urlid, err = p.Chrome.StoreRequest(p.Db, p.preflightResult, p.screenshotResult, p.fn); err != nil {
+	if p.UrlId, err = p.Chrome.StoreRequest(p.Db, p.preflightResult, p.screenshotResult, p.fn); err != nil {
 		return
 	}
 
@@ -166,7 +164,6 @@ func (p *Processor) takeScreenshot() (err error) {
 
 // storePerceptionHash calculates and stores a perception hash
 func (p *Processor) storePerceptionHash() (err error) {
-
 	if p.Db == nil {
 		return
 	}
@@ -188,7 +185,7 @@ func (p *Processor) storePerceptionHash() (err error) {
 	}
 
 	var dburl storage.URL
-	p.Db.First(&dburl, p.urlid)
+	p.Db.First(&dburl, p.UrlId)
 	dburl.PerceptionHash = comp.ToString()
 	p.Db.Save(&dburl)
 
@@ -197,7 +194,6 @@ func (p *Processor) storePerceptionHash() (err error) {
 
 // writeScreenshot writes the screenshot buffer to disk
 func (p *Processor) writeScreenshot() (err error) {
-
 	p.Logger.Debug().Str("url", p.URL.String()).Str("path", p.fp).Msg("saving screenshot buffer")
 	if err = os.WriteFile(p.fp, p.screenshotResult.Screenshot, 0644); err != nil {
 		return
