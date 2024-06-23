@@ -2,9 +2,9 @@ name: Docker build & Push
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   release:
-    types: [ published ]
+    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -38,25 +38,3 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: mr-smithers-excellent/docker-build-push@v5
-        name: Publish latest tag to Docker Repo (only on master branch push)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        with:
-          image: leonjza/gowitness
-          addLatest: true
-          tags: latest
-          registry: docker.io
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - uses: mr-smithers-excellent/docker-build-push@v5
-        name: Publish latest and version tag to Docker Repo (only on tag event)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-        with:
-          image: leonjza/gowitness
-          addLatest: true
-          tags: ${{ steps.get_version.outputs.VERSION }}, latest
-          registry: docker.io
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
